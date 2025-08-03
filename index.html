@@ -3,64 +3,76 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SEEUN Updates ✧ STAYC</title>
+  <title>SEEUN ✧ Gallery</title>
   <style>
     body {
       margin: 0;
+      background: #fff0f5;
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to bottom, #fce4ec, #f3e5f5);
-      color: #333;
     }
-
     header {
-      background-color: #ba68c8;
-      color: white;
-      padding: 2rem 1rem;
       text-align: center;
+      padding: 2rem 1rem;
+      background: #e1bee7;
     }
-
     header img {
-      max-width: 160px;
-      border-radius: 16px;
-      margin-bottom: 1rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 120px;
+      border-radius: 50%;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
-
     header h1 {
-      margin: 0.5rem 0 0.2rem;
-      font-size: 2.2rem;
+      margin: 1rem 0 0.5rem;
+      font-size: 2rem;
+      color: #6a1b9a;
     }
-
     header p {
-      font-size: 1rem;
       margin: 0;
+      font-size: 1rem;
+      color: #7b1fa2;
     }
-
-    .gallery {
+    .grid {
       display: grid;
-      grid-template-columns: 1fr;
-      gap: 2rem;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.5rem;
       padding: 2rem;
-      max-width: 800px;
+      max-width: 1400px;
       margin: auto;
     }
-
-    .tweet {
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    .card {
       background: white;
-      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      overflow: hidden;
+      transition: transform 0.2s ease;
     }
-
+    .card:hover {
+      transform: scale(1.01);
+    }
+    .card img {
+      width: 100%;
+      height: 280px;
+      object-fit: cover;
+      display: block;
+    }
+    .card .caption {
+      padding: 1rem;
+      font-size: 0.9rem;
+      color: #444;
+    }
+    .card a {
+      text-decoration: none;
+      color: #8e24aa;
+      font-weight: bold;
+      display: block;
+      padding: 0 1rem 1rem;
+    }
     footer {
       text-align: center;
       padding: 2rem;
-      font-size: 0.9rem;
       color: #888;
+      font-size: 0.9rem;
     }
   </style>
-  <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 </head>
 <body>
   <header>
@@ -69,38 +81,63 @@
     <p>Actualités de Seeun du groupe STAYC</p>
   </header>
 
-  <div class="gallery" id="gallery">
-    <!-- Les tweets seront insérés ici -->
-  </div>
+  <div class="grid" id="gallery">Chargement...</div>
 
   <footer>
     STAYC girls it's going down 👑🔥
   </footer>
 
   <script>
-    const tweetLinks = [
-      "https://twitter.com/France_SeeunFan/status/1952047901225754907",
-      "https://twitter.com/France_SeeunFan/status/1952043607546069076",
-      "https://twitter.com/France_SeeunFan/status/1952041225730535648",
-      "https://twitter.com/France_SeeunFan/status/1952040521620197546",
-      "https://twitter.com/France_SeeunFan/status/1952040182598819982",
-      "https://twitter.com/France_SeeunFan/status/1952040097206972875",
-      "https://twitter.com/France_SeeunFan/status/1952039920400277650",
-      "https://twitter.com/France_SeeunFan/status/1952006547644797052",
-      "https://twitter.com/France_SeeunFan/status/1951972715562250258",
-      "https://twitter.com/France_SeeunFan/status/1951882241354977693",
-      "https://twitter.com/SuminFRfan/status/1951677200228348176"
+    const feeds = [
+      'https://rss.app/feeds/xvuKT9kmG2RfqCpu.xml',
+      'https://rss.app/feeds/m4MEIPjwOa2JmW35.xml'
     ];
 
-    const gallery = document.getElementById("gallery");
-    tweetLinks.forEach(link => {
-      const div = document.createElement("div");
-      div.className = "tweet";
-      div.innerHTML = `<blockquote class="twitter-tweet"><a href="${link}"></a></blockquote>`;
-      gallery.appendChild(div);
-    });
+    async function fetchPosts(feedUrl) {
+      const proxy = 'https://corsproxy.io/?' + encodeURIComponent(feedUrl);
+      try {
+        const res = await fetch(proxy);
+        const xml = await res.text();
+        const data = new window.DOMParser().parseFromString(xml, "text/xml");
+        return Array.from(data.querySelectorAll("item"));
+      } catch (err) {
+        console.error('Erreur chargement RSS:', err);
+        return [];
+      }
+    }
 
-    twttr.widgets.load();
-  </script>
-</body>
-</html>
+    async function loadGallery() {
+      const container = document.getElementById("gallery");
+      container.innerHTML = "";
+      let allItems = [];
+      for (const feed of feeds) {
+        const items = await fetchPosts(feed);
+        allItems = allItems.concat(items);
+      }
+
+      allItems = allItems.filter(item => /seeun/i.test(item.querySelector("title")?.textContent || ''));
+      allItems.sort((a, b) => new Date(b.querySelector("pubDate").textContent) - new Date(a.querySelector("pubDate").textContent));
+
+      allItems.forEach(item => {
+        const link = item.querySelector("link")?.textContent;
+        const desc = item.querySelector("description")?.textContent || "";
+        const imgMatch = desc.match(/https:\/\/pbs\.twimg\.com\/media\/[^\"\s]+/);
+        const img = imgMatch ? imgMatch[0].replace(/&amp;/g, '&') : null;
+        const caption = (item.querySelector("title")?.textContent || "").substring(0, 120);
+
+        if (img) {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `
+            <a href="${link}" target="_blank">
+              <img src="${img}" alt="Seeun image">
+            </a>
+            <div class="caption">${caption}</div>
+            <a href="${link}" target="_blank">↗ Voir le post</a>
+          `;
+          container.appendChild(card);
+        }
+      });
+
+      if (container.innerHTML === "") {
+        container.innerHTML = "<p>Aucune publicati
