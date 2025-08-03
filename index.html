@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SEEUN Updates ✧ STAYC</title>
   <style>
@@ -38,42 +38,19 @@
 
     .gallery {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 1.5rem;
+      grid-template-columns: 1fr;
+      gap: 2rem;
       padding: 2rem;
-      max-width: 1200px;
+      max-width: 800px;
       margin: auto;
     }
 
-    .card {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    .tweet {
+      border-radius: 16px;
       overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .card img {
-      width: 100%;
-      height: 280px;
-      object-fit: cover;
-    }
-
-    .card-content {
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      background: white;
       padding: 1rem;
-    }
-
-    .card-content p {
-      font-size: 0.95rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .card-content a {
-      color: #8e24aa;
-      font-weight: bold;
-      text-decoration: none;
-      font-size: 0.9rem;
     }
 
     footer {
@@ -83,6 +60,7 @@
       color: #888;
     }
   </style>
+  <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 </head>
 <body>
   <header>
@@ -91,54 +69,38 @@
     <p>Actualités de Seeun du groupe STAYC</p>
   </header>
 
-  <div class="gallery" id="gallery">Chargement…</div>
+  <div class="gallery" id="gallery">
+    <!-- Les tweets seront insérés ici -->
+  </div>
 
   <footer>
     STAYC girls it's going down 👑🔥
   </footer>
 
   <script>
-    async function loadRSS(rssUrl) {
-      const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(rssUrl);
-      try {
-        const res = await fetch(proxyUrl);
-        const text = await res.text();
-        const xml = new DOMParser().parseFromString(text, "text/xml");
-        const items = xml.querySelectorAll("item");
+    const tweetLinks = [
+      "https://twitter.com/France_SeeunFan/status/1952047901225754907",
+      "https://twitter.com/France_SeeunFan/status/1952043607546069076",
+      "https://twitter.com/France_SeeunFan/status/1952041225730535648",
+      "https://twitter.com/France_SeeunFan/status/1952040521620197546",
+      "https://twitter.com/France_SeeunFan/status/1952040182598819982",
+      "https://twitter.com/France_SeeunFan/status/1952040097206972875",
+      "https://twitter.com/France_SeeunFan/status/1952039920400277650",
+      "https://twitter.com/France_SeeunFan/status/1952006547644797052",
+      "https://twitter.com/France_SeeunFan/status/1951972715562250258",
+      "https://twitter.com/France_SeeunFan/status/1951882241354977693",
+      "https://twitter.com/SuminFRfan/status/1951677200228348176"
+    ];
 
-        const container = document.getElementById("gallery");
-        container.innerHTML = "";
+    const gallery = document.getElementById("gallery");
+    tweetLinks.forEach(link => {
+      const div = document.createElement("div");
+      div.className = "tweet";
+      div.innerHTML = `<blockquote class="twitter-tweet"><a href="${link}"></a></blockquote>`;
+      gallery.appendChild(div);
+    });
 
-        items.forEach(item => {
-          const title = item.querySelector("title")?.textContent || "";
-          const link = item.querySelector("link")?.textContent || "#";
-          const descRaw = item.querySelector("description")?.textContent || "";
-          const desc = descRaw.replace(/<[^>]*>?/gm, '').slice(0, 140) + "...";
-          let image = "";
-          const media = item.querySelector("media\\:content");
-          if (media) {
-            let url = media.getAttribute("url");
-            url = url.replace("_normal", "");
-            image = `<img src="${url}" alt="Image Tweet">`;
-          }
-
-          container.innerHTML += `
-            <div class="card">
-              ${image}
-              <div class="card-content">
-                <p>${desc}</p>
-                <a href="${link}" target="_blank">Voir sur Twitter ↗</a>
-              </div>
-            </div>`;
-        });
-      } catch (e) {
-        document.getElementById("gallery").innerHTML = "Erreur de chargement.";
-        console.error(e);
-      }
-    }
-
-    loadRSS("https://rss.app/feeds/xvuKT9kmG2RfqCpu.xml");
-    loadRSS("https://rss.app/feeds/m4MEIPjwOa2JmW35.xml");
+    twttr.widgets.load();
   </script>
 </body>
 </html>
