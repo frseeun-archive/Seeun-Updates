@@ -8,7 +8,7 @@
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #fce4ec, #e1bee7);
+      background: linear-gradient(to bottom, #fce4ec, #f3e5f5);
       color: #333;
     }
 
@@ -20,57 +20,59 @@
     }
 
     header img {
-      max-width: 200px;
+      max-width: 160px;
       border-radius: 16px;
       margin-bottom: 1rem;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
-    .container {
-      max-width: 1000px;
-      margin: 2rem auto;
-      padding: 0 1rem;
+    header h1 {
+      margin: 0.5rem 0 0.2rem;
+      font-size: 2.2rem;
     }
 
-    h2 {
-      color: #7b1fa2;
-      margin: 2rem 0 1rem;
+    header p {
+      font-size: 1rem;
+      margin: 0;
     }
 
-    .slider {
-      display: flex;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      gap: 1rem;
-      padding-bottom: 1rem;
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: auto;
     }
 
-    .slide {
-      min-width: 300px;
-      flex: 0 0 auto;
+    .card {
       background: white;
-      border-radius: 16px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      scroll-snap-align: start;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card img {
+      width: 100%;
+      height: 280px;
+      object-fit: cover;
+    }
+
+    .card-content {
       padding: 1rem;
     }
 
-    .slide img {
-      width: 100%;
-      border-radius: 12px;
-      object-fit: cover;
+    .card-content p {
+      font-size: 0.95rem;
       margin-bottom: 0.5rem;
     }
 
-    .slide p {
-      font-size: 0.95rem;
-      white-space: pre-wrap;
-    }
-
-    .slide a {
-      text-decoration: none;
+    .card-content a {
       color: #8e24aa;
       font-weight: bold;
+      text-decoration: none;
       font-size: 0.9rem;
     }
 
@@ -86,69 +88,57 @@
   <header>
     <img src="https://pbs.twimg.com/profile_images/1940831877729832960/_1UHFvXT_400x400.jpg" alt="Seeun">
     <h1>SEEUN ✧ STAYC</h1>
-    <p>Actualités visuelles de Seeun via Twitter</p>
+    <p>Actualités de Seeun du groupe STAYC</p>
   </header>
 
-  <div class="container">
-    <h2>🧍‍♀️ Publications de @France_SeeunFan</h2>
-    <div class="slider" id="slider-user">Chargement...</div>
-
-    <h2>👑 Publications de @STAYC_official (SEEUN uniquement)</h2>
-    <div class="slider" id="slider-stayc">Chargement...</div>
-  </div>
+  <div class="gallery" id="gallery">Chargement…</div>
 
   <footer>
     STAYC girls it's going down 👑🔥
   </footer>
 
   <script>
-    async function chargerSlider(id, flux) {
-      const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(flux);
+    async function loadRSS(rssUrl) {
+      const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(rssUrl);
       try {
         const res = await fetch(proxyUrl);
-        const xmlText = await res.text();
-        const xml = new DOMParser().parseFromString(xmlText, "text/xml");
-        const items = Array.from(xml.querySelectorAll("item"));
+        const text = await res.text();
+        const xml = new DOMParser().parseFromString(text, "text/xml");
+        const items = xml.querySelectorAll("item");
 
-        const container = document.getElementById(id);
+        const container = document.getElementById("gallery");
         container.innerHTML = "";
 
-        items
-          .filter(item => {
-            const txt = item.querySelector("title")?.textContent || "";
-            return /seeun/i.test(txt);
-          })
-          .forEach(item => {
-            const title = item.querySelector("title")?.textContent || "";
-            const link = item.querySelector("link")?.textContent || "#";
-            const descriptionRaw = item.querySelector("description")?.textContent || "";
-            const description = descriptionRaw.replace(/<[^>]+>/g, '').trim();
+        items.forEach(item => {
+          const title = item.querySelector("title")?.textContent || "";
+          const link = item.querySelector("link")?.textContent || "#";
+          const descRaw = item.querySelector("description")?.textContent || "";
+          const desc = descRaw.replace(/<[^>]*>?/gm, '').slice(0, 140) + "...";
+          let image = "";
+          const media = item.querySelector("media\\:content");
+          if (media) {
+            let url = media.getAttribute("url");
+            url = url.replace("_normal", "");
+            image = `<img src="${url}" alt="Image Tweet">`;
+          }
 
-            let imageHTML = "";
-            const media = item.querySelector("media\\:content");
-            if (media) {
-              let img = media.getAttribute("url");
-              img = img.replace("_normal", "").replace("_400x400", "");
-              imageHTML = `<img src="${img}" alt="Tweet image">`;
-            }
-
-            container.innerHTML += `
-              <div class="slide">
-                ${imageHTML}
-                <p>${description}</p>
+          container.innerHTML += `
+            <div class="card">
+              ${image}
+              <div class="card-content">
+                <p>${desc}</p>
                 <a href="${link}" target="_blank">Voir sur Twitter ↗</a>
               </div>
-            `;
-          });
-      } catch (err) {
-        document.getElementById(id).innerHTML = "<p>Erreur de chargement.</p>";
-        console.error(err);
+            </div>`;
+        });
+      } catch (e) {
+        document.getElementById("gallery").innerHTML = "Erreur de chargement.";
+        console.error(e);
       }
     }
 
-    // Charger les deux flux
-    chargerSlider("slider-user", "https://rss.app/feeds/xvuKT9kmG2RfqCpu.xml");
-    chargerSlider("slider-stayc", "https://rss.app/feeds/m4MEIPjwOa2JmW35.xml");
+    loadRSS("https://rss.app/feeds/xvuKT9kmG2RfqCpu.xml");
+    loadRSS("https://rss.app/feeds/m4MEIPjwOa2JmW35.xml");
   </script>
 </body>
 </html>
