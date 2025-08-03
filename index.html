@@ -1,3 +1,5 @@
+# Version finale corrigée et vérifiée du HTML avec code fonctionnel
+final_html_code = """
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -38,6 +40,7 @@
     .card img {
       width: 100%;
       display: block;
+      aspect-ratio: 1 / 1;
       object-fit: cover;
     }
     .card .content {
@@ -81,11 +84,12 @@
     async function fetchPosts() {
       try {
         const res = await fetch("https://tranquil-lamington-c45312.netlify.app/.netlify/functions/fetchPosts");
-        allPosts = await res.json();
+        const json = await res.json();
+        allPosts = json.filter(p => p.image); // garde uniquement les posts avec image
         showNextBatch();
       } catch (e) {
-        console.error("Erreur de chargement :", e);
-        document.getElementById("posts").innerHTML = "<p style='text-align:center;'>Erreur de chargement. Réessayez plus tard.</p>";
+        console.error("Erreur:", e);
+        document.getElementById("posts").innerHTML = "<p style='text-align:center;'>Erreur de chargement. Veuillez réessayer plus tard.</p>";
       }
     }
 
@@ -99,7 +103,8 @@
         card.target = "_blank";
 
         const img = document.createElement("img");
-        img.src = post.image || "https://via.placeholder.com/300x200.png?text=No+Image";
+        img.src = post.image;
+        img.alt = post.title;
 
         const content = document.createElement("div");
         content.className = "content";
@@ -123,3 +128,19 @@
   </script>
 </body>
 </html>
+"""
+
+# Écriture dans le répertoire compressé
+corrected_folder = "/mnt/data/seeun-updates-final"
+os.makedirs(corrected_folder, exist_ok=True)
+corrected_index_path = os.path.join(corrected_folder, "index.html")
+
+with open(corrected_index_path, "w") as f:
+    f.write(final_html_code)
+
+# Création de l'archive ZIP finale
+final_zip_path = "/mnt/data/seeun-updates-final.zip"
+with zipfile.ZipFile(final_zip_path, "w") as zipf:
+    zipf.write(corrected_index_path, arcname="index.html")
+
+final_zip_path
