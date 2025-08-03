@@ -80,16 +80,16 @@
 </head>
 <body>
   <header>
-    <img src="https://kpopping.com/kpics/230214-STAYC-Seeun-4th-Single-Teddy-Bear-Press-Showcase.jpg" alt="Seeun STAYC">
+    <img src="https://pbs.twimg.com/profile_images/1940831877729832960/_1UHFvXT_normal.jpg" alt="Seeun">
     <h1>SEEUN ✧ STAYC</h1>
-    <p>Tweets récents de SEEUN publiés par moi et STAYC_official</p>
+    <p>Posts contenant #SEEUN depuis France_SeeunFan et STAYC_official</p>
   </header>
 
   <div class="container">
     <h2>🧍‍♀️ Mes tweets sur SEEUN</h2>
     <div id="rss-user">Chargement…</div>
 
-    <h2>👑 Tweets officiels STAYC sur SEEUN</h2>
+    <h2>👑 STAYC_official - SEEUN uniquement</h2>
     <div id="rss-stayc">Chargement…</div>
   </div>
 
@@ -99,11 +99,11 @@
 
   <script>
     async function fetchFeed(containerId, rssUrl) {
-      const CORS_PROXY = "https://api.allorigins.win/get?url=";
+      const CORS_PROXY = "https://corsproxy.io/?";
       try {
-        const res = await fetch(CORS_PROXY + encodeURIComponent(rssUrl));
-        const data = await res.json();
-        const xml = new DOMParser().parseFromString(data.contents, "text/xml");
+        const res = await fetch(CORS_PROXY + rssUrl);
+        const data = await res.text();
+        const xml = new DOMParser().parseFromString(data, "text/xml");
         const items = xml.querySelectorAll("item");
 
         let html = "";
@@ -112,28 +112,4 @@
         items.forEach(item => {
           const title = item.querySelector("title")?.textContent || "";
           const link = item.querySelector("link")?.textContent || "#";
-          const pubDate = new Date(item.querySelector("pubDate")?.textContent).toLocaleString();
-
-          if (keywords.some(k => title.toUpperCase().includes(k.toUpperCase()))) {
-            html += `
-              <div class="update-card">
-                <a href="${link}" target="_blank">${title}</a>
-                <p><small>${pubDate}</small></p>
-              </div>
-            `;
-          }
-        });
-
-        document.getElementById(containerId).innerHTML = html || "<p>Aucun post récent contenant 'SEEUN'.</p>";
-      } catch (err) {
-        document.getElementById(containerId).innerHTML = "<p>Erreur lors du chargement du flux.</p>";
-        console.error(err);
-      }
-    }
-
-    // Tes flux RSS ici :
-    fetchFeed("rss-user", "https://rss.app/feeds/xvuKT9kmG2RfqCpu.xml");
-    fetchFeed("rss-stayc", "https://rss.app/feeds/m4MEIPjwOa2JmW35.xml");
-  </script>
-</body>
-</html>
+          const pubDate = new Date(item.querySelector("pubDate")?.textConte
