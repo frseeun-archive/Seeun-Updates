@@ -20,6 +20,14 @@
       box-shadow: 0 0 15px rgba(0,0,0,0.1);
     }
 
+    header img {
+      max-width: 300px;
+      width: 80%;
+      border-radius: 16px;
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
     header h1 {
       font-size: 2.5rem;
       margin-bottom: 0.3rem;
@@ -35,6 +43,12 @@
       max-width: 800px;
       margin: 2rem auto;
       padding: 0 1rem;
+    }
+
+    h2 {
+      color: #7b1fa2;
+      text-align: center;
+      margin-top: 2rem;
     }
 
     .update-card {
@@ -66,18 +80,60 @@
 </head>
 <body>
   <header>
+    <img src="https://kpopping.com/kpics/230214-STAYC-Seeun-4th-Single-Teddy-Bear-Press-Showcase.jpg" alt="Seeun STAYC">
     <h1>SEEUN ✧ STAYC</h1>
-    <p>Toutes les news, photos et posts autour de SEEUN #세은</p>
+    <p>Tweets récents de SEEUN publiés par moi et STAYC_official</p>
   </header>
 
-  <div class="container" id="rss-feed">
-    <div class="update-card">
-      <p>✨ Le flux de posts SEEUN s'affichera ici prochainement.</p>
-    </div>
+  <div class="container">
+    <h2>🧍‍♀️ Mes tweets sur SEEUN</h2>
+    <div id="rss-user">Chargement…</div>
+
+    <h2>👑 Tweets officiels STAYC sur SEEUN</h2>
+    <div id="rss-stayc">Chargement…</div>
   </div>
 
   <footer>
     Fandom fan site — STAYC is going up! 🫧
   </footer>
+
+  <script>
+    async function fetchFeed(containerId, rssUrl) {
+      const CORS_PROXY = "https://api.allorigins.win/get?url=";
+      try {
+        const res = await fetch(CORS_PROXY + encodeURIComponent(rssUrl));
+        const data = await res.json();
+        const xml = new DOMParser().parseFromString(data.contents, "text/xml");
+        const items = xml.querySelectorAll("item");
+
+        let html = "";
+        const keywords = ["SEEUN", "세은"];
+
+        items.forEach(item => {
+          const title = item.querySelector("title")?.textContent || "";
+          const link = item.querySelector("link")?.textContent || "#";
+          const pubDate = new Date(item.querySelector("pubDate")?.textContent).toLocaleString();
+
+          if (keywords.some(k => title.toUpperCase().includes(k.toUpperCase()))) {
+            html += `
+              <div class="update-card">
+                <a href="${link}" target="_blank">${title}</a>
+                <p><small>${pubDate}</small></p>
+              </div>
+            `;
+          }
+        });
+
+        document.getElementById(containerId).innerHTML = html || "<p>Aucun post récent contenant 'SEEUN'.</p>";
+      } catch (err) {
+        document.getElementById(containerId).innerHTML = "<p>Erreur lors du chargement du flux.</p>";
+        console.error(err);
+      }
+    }
+
+    // Tes flux RSS ici :
+    fetchFeed("rss-user", "https://rss.app/feeds/xvuKT9kmG2RfqCpu.xml");
+    fetchFeed("rss-stayc", "https://rss.app/feeds/m4MEIPjwOa2JmW35.xml");
+  </script>
 </body>
 </html>
