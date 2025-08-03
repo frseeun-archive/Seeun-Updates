@@ -1,5 +1,5 @@
-# Création du nouveau index.html avec affichage limité à 20 publications pour accélérer le chargement
-limited_html_code = """
+# Mise à jour du index.html pour inclure un bouton "Charger plus"
+html_with_load_more = """
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -46,6 +46,21 @@ limited_html_code = """
       padding: 10px;
       font-size: 0.9rem;
     }
+    .load-more {
+      display: block;
+      margin: 0 auto 2rem auto;
+      padding: 10px 20px;
+      font-size: 1rem;
+      background: #ff3ea5;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .load-more:hover {
+      background: #e03095;
+    }
     footer {
       text-align: center;
       font-size: 0.8rem;
@@ -57,15 +72,24 @@ limited_html_code = """
 <body>
   <h1>Actualités de Seeun du groupe STAYC</h1>
   <div class="grid" id="posts"></div>
+  <button class="load-more" onclick="loadMore()">Charger plus</button>
   <footer>STAYC girls it's going down</footer>
 
   <script>
-    async function loadPosts() {
-      const res = await fetch("https://tranquil-lamington-c45312.netlify.app/.netlify/functions/fetchPosts");
-      const data = await res.json();
-      const container = document.getElementById("posts");
+    let allPosts = [];
+    let currentIndex = 0;
+    const batchSize = 12;
 
-      data.slice(0, 20).forEach(post => {
+    async function fetchPosts() {
+      const res = await fetch("https://tranquil-lamington-c45312.netlify.app/.netlify/functions/fetchPosts");
+      allPosts = await res.json();
+      showNextBatch();
+    }
+
+    function showNextBatch() {
+      const container = document.getElementById("posts");
+      const slice = allPosts.slice(currentIndex, currentIndex + batchSize);
+      slice.forEach(post => {
         const card = document.createElement("a");
         card.className = "card";
         card.href = post.link;
@@ -82,16 +106,24 @@ limited_html_code = """
         card.appendChild(content);
         container.appendChild(card);
       });
+      currentIndex += batchSize;
+      if (currentIndex >= allPosts.length) {
+        document.querySelector(".load-more").style.display = "none";
+      }
     }
 
-    loadPosts();
+    function loadMore() {
+      showNextBatch();
+    }
+
+    fetchPosts();
   </script>
 </body>
 </html>
 """
 
-limited_html_path = "/mnt/data/index_20posts.html"
-with open(limited_html_path, "w") as f:
-    f.write(limited_html_code)
+html_with_load_more_path = "/mnt/data/index_load_more.html"
+with open(html_with_load_more_path, "w") as f:
+    f.write(html_with_load_more)
 
-limited_html_path
+html_with_load_more_path
