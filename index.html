@@ -54,7 +54,7 @@
     .update-card {
       background: white;
       border-radius: 16px;
-      padding: 1rem 1.5rem;
+      padding: 1rem;
       margin-bottom: 1.5rem;
       box-shadow: 0 4px 10px rgba(0,0,0,0.05);
       transition: transform 0.2s;
@@ -62,6 +62,12 @@
 
     .update-card:hover {
       transform: translateY(-3px);
+    }
+
+    .update-card img {
+      max-width: 100%;
+      border-radius: 10px;
+      margin-top: 0.5rem;
     }
 
     .update-card a {
@@ -74,42 +80,6 @@
       text-align: center;
       padding: 2rem;
       font-size: 0.9rem;
-      color: #888;
+      color: #aaa;
     }
-  </style>
-</head>
-<body>
-  <header>
-    <img src="https://pbs.twimg.com/profile_images/1940831877729832960/_1UHFvXT_normal.jpg" alt="Seeun">
-    <h1>SEEUN ✧ STAYC</h1>
-    <p>Posts contenant #SEEUN depuis France_SeeunFan et STAYC_official</p>
-  </header>
-
-  <div class="container">
-    <h2>🧍‍♀️ Mes tweets sur SEEUN</h2>
-    <div id="rss-user">Chargement…</div>
-
-    <h2>👑 STAYC_official - SEEUN uniquement</h2>
-    <div id="rss-stayc">Chargement…</div>
-  </div>
-
-  <footer>
-    Fandom fan site — STAYC is going up! 🫧
-  </footer>
-
-  <script>
-    async function fetchFeed(containerId, rssUrl) {
-      const CORS_PROXY = "https://corsproxy.io/?";
-      try {
-        const res = await fetch(CORS_PROXY + rssUrl);
-        const data = await res.text();
-        const xml = new DOMParser().parseFromString(data, "text/xml");
-        const items = xml.querySelectorAll("item");
-
-        let html = "";
-        const keywords = ["SEEUN", "세은"];
-
-        items.forEach(item => {
-          const title = item.querySelector("title")?.textContent || "";
-          const link = item.querySelector("link")?.textContent || "#";
-          const pubDate = new Date(item.querySelector("pubDate")?.textConte
+  </s
