@@ -1,5 +1,5 @@
-# Création du fichier index.html mis à jour pour interroger le proxy Netlify et afficher la galerie
-html_code = """
+# Création du nouveau index.html avec affichage limité à 20 publications pour accélérer le chargement
+limited_html_code = """
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -65,7 +65,7 @@ html_code = """
       const data = await res.json();
       const container = document.getElementById("posts");
 
-      data.forEach(post => {
+      data.slice(0, 20).forEach(post => {
         const card = document.createElement("a");
         card.className = "card";
         card.href = post.link;
@@ -90,8 +90,8 @@ html_code = """
 </html>
 """
 
-html_path = "/mnt/data/index.html"
-with open(html_path, "w") as f:
-    f.write(html_code)
+limited_html_path = "/mnt/data/index_20posts.html"
+with open(limited_html_path, "w") as f:
+    f.write(limited_html_code)
 
-html_path
+limited_html_path
