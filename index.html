@@ -17,7 +17,6 @@
       color: white;
       padding: 2rem 1rem;
       text-align: center;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
     }
 
     header img {
@@ -57,11 +56,10 @@
       padding: 1rem;
       margin-bottom: 1.5rem;
       box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-      transition: transform 0.2s;
     }
 
     .update-card:hover {
-      transform: translateY(-3px);
+      transform: translateY(-2px);
     }
 
     .update-card img {
@@ -71,10 +69,17 @@
       object-fit: cover;
     }
 
+    .update-card p {
+      white-space: pre-wrap;
+      font-size: 1rem;
+    }
+
     .update-card a {
+      display: block;
+      margin-top: 0.5rem;
       color: #8e24aa;
-      text-decoration: none;
       font-weight: bold;
+      text-decoration: none;
     }
 
     footer {
@@ -89,19 +94,19 @@
   <header>
     <img src="https://pbs.twimg.com/profile_images/1940831877729832960/_1UHFvXT_400x400.jpg" alt="Seeun">
     <h1>SEEUN ✧ STAYC</h1>
-    <p>Posts de France_SeeunFan & STAYC_official sur Seeun</p>
+    <p>Publications Twitter sur Seeun — mises à jour automatiques</p>
   </header>
 
   <div class="container">
-    <h2>🧍‍♀️ Mes publications</h2>
+    <h2>🧍‍♀️ Tweets de @France_SeeunFan</h2>
     <div id="rss-user">Chargement…</div>
 
-    <h2>👑 Publications STAYC_official</h2>
+    <h2>👑 Tweets de @STAYC_official</h2>
     <div id="rss-stayc">Chargement…</div>
   </div>
 
   <footer>
-    STAYC girls it's going down 💥
+    STAYC girls it's going down 👑🔥
   </footer>
 
   <script>
@@ -118,36 +123,36 @@
           const title = item.querySelector("title")?.textContent || "";
           const link = item.querySelector("link")?.textContent || "#";
           const pubDate = new Date(item.querySelector("pubDate")?.textContent).toLocaleString();
-          let image = "";
+          const descriptionRaw = item.querySelector("description")?.textContent || "";
+          const description = descriptionRaw.replace(/<[^>]+>/g, '').trim();
 
-          // Obtenir une image en haute qualité (non miniaturisée)
+          let image = "";
           const media = item.querySelector("media\\:content");
           if (media) {
             let url = media.getAttribute("url");
             if (url.includes("twimg.com")) {
-              // remplacer l'image "normal" par une version grande
               url = url.replace("_normal", "_large").replace("_400x400", "");
-              image = `<img src="${url}" alt="Image du post">`;
+              image = `<img src="${url}" alt="Image du tweet">`;
             }
           }
 
           html += `
             <div class="update-card">
-              <a href="${link}" target="_blank">${title}</a>
-              <p><small>${pubDate}</small></p>
+              <p>${description}</p>
               ${image}
+              <a href="${link}" target="_blank">Voir le tweet original ↗</a>
             </div>
           `;
         });
 
         document.getElementById(containerId).innerHTML = html || "<p>Aucun post trouvé.</p>";
       } catch (err) {
-        console.error("Erreur lors du chargement :", err);
+        console.error("Erreur :", err);
         document.getElementById(containerId).innerHTML = "<p>Erreur lors du chargement du flux.</p>";
       }
     }
 
-    // Flux RSS : ton compte + STAYC officiel
+    // Tes deux flux RSS
     fetchFeed("rss-user", "https://rss.app/feeds/xvuKT9kmG2RfqCpu.xml");
     fetchFeed("rss-stayc", "https://rss.app/feeds/m4MEIPjwOa2JmW35.xml");
   </script>
